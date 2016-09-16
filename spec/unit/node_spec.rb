@@ -702,6 +702,52 @@ describe Chef::Node do
     end
   end
 
+  describe "literals" do
+    it "should deep merge attributes defined as literals" do
+      node.default['attr_literal_hash'] = { 'key' => { 'inner' => 'value' } }
+      expect(node[:attr_literal_hash][:key]).not_to be_nil
+      expect(node[:attr_literal_hash][:key]).to be_a_kind_of(Mash)
+      expect(node[:attr_literal_hash]['key']).not_to be_nil
+      expect(node['attr_literal_hash']['key']).not_to be_nil
+      expect(node['attr_literal_hash'][:key]).not_to be_nil
+      expect(node[:attr_literal_hash][:key][:inner]).to eql('value')
+      expect(node[:attr_literal_hash]['key'][:inner]).to eql('value')
+      expect(node[:attr_literal_hash]['key']['inner']).to eql('value')
+      expect(node[:attr_literal_hash][:key]['inner']).to eql('value')
+      expect(node['attr_literal_hash'][:key][:inner]).to eql('value')
+      expect(node['attr_literal_hash']['key'][:inner]).to eql('value')
+      expect(node['attr_literal_hash']['key']['inner']).to eql('value')
+      expect(node['attr_literal_hash'][:key]['inner']).to eql('value')
+      expect(node['attr_literal_hash'][:key]['not_existing']).to be_nil
+
+      node.default['attr_literal_array'] = [ { 'key' => { 'inner' => 'value' } }]
+      expect(node[:attr_literal_array]).to be_a_kind_of(Array)
+      expect(node[:attr_literal_array].first[:key]).not_to be_nil
+      expect(node[:attr_literal_array].first['key']).not_to be_nil
+      expect(node['attr_literal_array'].first['key']).not_to be_nil
+      expect(node['attr_literal_array'].first[:key]).not_to be_nil
+      expect(node[:attr_literal_array].first[:key][:inner]).to eql('value')
+      expect(node[:attr_literal_array].first['key'][:inner]).to eql('value')
+      expect(node[:attr_literal_array].first['key']['inner']).to eql('value')
+      expect(node[:attr_literal_array].first[:key]['inner']).to eql('value')
+      expect(node['attr_literal_array'].first[:key][:inner]).to eql('value')
+      expect(node['attr_literal_array'].first['key'][:inner]).to eql('value')
+      expect(node['attr_literal_array'].first['key']['inner']).to eql('value')
+      expect(node['attr_literal_array'].first[:key]['inner']).to eql('value')
+      expect(node['attr_literal_array'].first[:key]['not_existing']).to be_nil
+
+      node.default['nested_literal'] = [ [ { 'key' => 'value' } ], [ { 'key' => 'value' } ]]
+      expect(node[:nested_literal]).to be_a_kind_of(Array)
+      expect(node[:nested_literal].first).to be_a_kind_of(Array)
+      expect(node[:nested_literal].last).to be_a_kind_of(Array)
+      expect(node[:nested_literal].first.first[:key]).not_to be_nil
+      expect(node[:nested_literal].first.first['key']).to eql('value')
+      expect(node[:nested_literal].first.last[:key]).not_to be_nil
+      expect(node[:nested_literal].first.last['key']).to eql('value')
+      expect(node[:nested_literal].first.last[:key]['not_existing']).to be_nil
+    end
+  end
+
   describe "converting to or from json" do
     it "should serialize itself as json", :json => true do
       node.from_file(File.expand_path("nodes/test.example.com.rb", CHEF_SPEC_DATA))
